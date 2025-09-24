@@ -35,7 +35,7 @@ app.get("/api/absen", async (req, res) => {
       .limit(1);
 
     if (existing && existing.length > 0) {
-      return res.send(`Halo ${user}, kamu sudah absen dengan nomor ${existing[0].number} tadi.`);
+      return res.send(`Halo ${user}, kamu sudah absen dengan nomor ${existing[0].number} tadi oy`);
     }
 
     const nextNumber = await getNextNumber();
@@ -43,7 +43,7 @@ app.get("/api/absen", async (req, res) => {
     return res.send(`Halo ${user}, kamu absen ke-${nextNumber} cuy.`);
   }
 
-  // ==== Debug cekabsen ====
+  // ==== Cek daftar absen ====
   if (command.includes("cekabsen")) {
     const { data: all, error } = await supabase
       .from("attendance")
@@ -51,11 +51,11 @@ app.get("/api/absen", async (req, res) => {
       .order("number");
 
     if (error) return res.send(`Error mengakses database: ${error.message}`);
+    if (!all || all.length === 0) return res.send("Belum ada yang absen.");
 
-    if (!all || all.length === 0) return res.send("Belum ada yang absen. (0 row terdeteksi)");
-
+    // gabungkan jadi string
     const list = all.map(a => `${a.number}. ${a.username}`).join(", ");
-    return res.send(`Jumlah absen ada: ${all.length}. Daftar absen: ${list}`);
+    return res.send(`Daftar absen (${all.length} user): ${list}`);
   }
 
   // ==== Reset absen ====
