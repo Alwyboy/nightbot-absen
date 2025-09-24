@@ -1,5 +1,4 @@
 import express from "express";
-import fetch from "node-fetch";
 import { createClient } from "@supabase/supabase-js";
 
 const app = express();
@@ -28,7 +27,7 @@ app.get("/api/absen", async (req, res) => {
   if (!user || !command) return res.send("Parameter user & command diperlukan!");
 
   // ==== Fleksibel: semua kata yang mengandung "absen" ====
-  if (command.includes("absen")) {
+  if (command.includes("absen") && !command.includes("cekabsen") && !command.includes("reset")) {
     const { data: existing } = await supabase
       .from("attendance")
       .select("*")
@@ -36,24 +35,27 @@ app.get("/api/absen", async (req, res) => {
       .limit(1);
 
     if (existing && existing.length > 0) {
-      return res.send(`Halo ${user}, kamu sudah absen dengan nomor ${existing[0].number}. tadi`);
+      return res.send(`Halo ${user}, kamu sudah absen dengan nomor ${existing[0].number}.`);
     }
 
     const nextNumber = await getNextNumber();
     await supabase.from("attendance").insert([{ username: user, number: nextNumber }]);
-    return res.send(`Halo ${user}, kamu absen ke-${nextNumber} cuy.`);
+    return res.send(`Halo ${user}, absen kamu tercatat dengan nomor ${nextNumber}.`);
   }
 
-  // ==== Cek daftar absen ====
+  // ==== Debug cekabsen ====
   if (command.includes("cekabsen")) {
-    const { data: all } = await supabase
+    const { data: all, error } = await supabase
       .from("attendance")
       .select("*")
       .order("number");
 
-    if (!all || all.length === 0) return res.send("Belum ada yang absen.");
+    if (error) return res.send(`Error mengakses database: ${error.message}`);
+
+    if (!all || all.length === 0) return res.send("Belum ada yang absen. (0 row terdeteksi)");
+
     const list = all.map(a => `${a.number}. ${a.username}`).join(", ");
-    return res.send(`Daftar absen: ${list}`);
+    return res.send(`Jumlah row terdeteksi: ${all.length}. Daftar absen: ${list}`);
   }
 
   // ==== Reset absen ====
