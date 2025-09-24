@@ -55,7 +55,7 @@ app.get("/api/absen", async (req, res) => {
     if (!all || all.length === 0) return res.send("Belum ada yang absen. (0 row terdeteksi)");
 
     const list = all.map(a => `${a.number}. ${a.username}`).join(", ");
-    return res.send(`Jumlah row terdeteksi: ${all.length}. Daftar absen: ${list}`);
+    return res.send(`Jumlah absen ada: ${all.length}. Daftar absen: ${list}`);
   }
 
   // ==== Reset absen ====
