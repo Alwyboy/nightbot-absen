@@ -35,12 +35,12 @@ app.get("/api/absen", async (req, res) => {
       .limit(1);
 
     if (existing && existing.length > 0) {
-      return res.send(`Halo ${user}, kamu sudah absen dengan nomor ${existing[0].number}.`);
+      return res.send(`Halo ${user}, kamu sudah absen dengan nomor ${existing[0].number} tadi.`);
     }
 
     const nextNumber = await getNextNumber();
     await supabase.from("attendance").insert([{ username: user, number: nextNumber }]);
-    return res.send(`Halo ${user}, absen kamu tercatat dengan nomor ${nextNumber}.`);
+    return res.send(`Halo ${user}, kamu absen ke-${nextNumber} cuy.`);
   }
 
   // ==== Debug cekabsen ====
